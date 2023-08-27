@@ -27,7 +27,7 @@
     "homebridge-plugin"
   ],
   "dependencies": {
-    "kgarage-ctl": "file:bin\\kgarage-ctl-1.0.1.tgz"
+    "kgarage-ctl": "^1.0.2"
   },
   "devDependencies": {
     "@types/node": "^18.16.20",

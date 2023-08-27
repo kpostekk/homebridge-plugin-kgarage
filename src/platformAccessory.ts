@@ -78,6 +78,7 @@ export class KGarageDoorPlatformAccessory {
       accessory.context.device.port,
       accessory.context.device.address,
     );
+
     this.client.on('data', (data) => {
       const state = Number(data);
       this.state.current = state;
@@ -86,15 +87,10 @@ export class KGarageDoorPlatformAccessory {
         state,
       );
     });
+
     this.client.on('error', (error) => {
       this.platform.log.error(String(error));
     });
-    setInterval(() => {
-      this.client?.sendControlPacket({
-        action: 'SYNC',
-        timestamp: Date.now(),
-      });
-    }, 250);
   }
 
   async getCurrentDoorState(): Promise<CharacteristicValue> {

@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "displayName": "KGarage",
   "name": "homebridge-plugin-kgarage",
   "version": "1.0.0",

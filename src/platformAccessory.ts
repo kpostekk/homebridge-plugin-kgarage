@@ -2,7 +2,6 @@ import {
   Service,
   PlatformAccessory,
   CharacteristicValue,
-  Characteristic,
 } from 'homebridge';
 import { ControlTCPClient } from 'kgarage-ctl/dist/tcp';
 import { ExampleHomebridgePlatform } from './platform';

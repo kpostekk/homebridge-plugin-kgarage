@@ -74,18 +74,6 @@ export class KGarageDoorPlatformAccessory {
       accessory.context.device.port,
       accessory.context.device.address,
     );
-    setInterval(() => {
-      if (this.client?.readable) {
-        return;
-      }
-      this.platform.log.warn(
-        'Reconnecting to ' + accessory.context.device.name,
-      );
-      this.client?.connect(
-        accessory.context.device.port,
-        accessory.context.device.address,
-      );
-    }, 12_000);
 
     this.client.on('data', (data) => {
       const state = Number(data);

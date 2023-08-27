@@ -1,7 +1,7 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "KGarage Door",
   "pluginType": "platform",
-  "singular": true,
+  "singular": false,
   "schema": {
     "type": "object",
     "properties": {
@@ -10,6 +10,12 @@
         "type": "string",
         "required": true,
         "default": "Example Dynamic Platform"
+      },
+      "address": {
+        "title": "Address",
+        "type": "string",
+        "required": true,
+        "default": "127.0.0.1"
       }
     }
   }

@@ -1,7 +1,7 @@
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { ExamplePlatformAccessory } from './platformAccessory';
+import { ExamplePlatformAccessory, KGarageDoorPlatformAccessory } from './platformAccessory';
 
 /**
  * HomebridgePlatform
@@ -87,7 +87,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the restored accessory
         // this is imported from `platformAccessory.ts`
-        new ExamplePlatformAccessory(this, existingAccessory);
+        //new ExamplePlatformAccessory(this, existingAccessory);
 
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
         // remove platform accessories when no longer present
@@ -106,11 +106,51 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the newly create accessory
         // this is imported from `platformAccessory.ts`
-        new ExamplePlatformAccessory(this, accessory);
+        //new ExamplePlatformAccessory(this, accessory);
 
         // link the accessory to your platform
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       }
+    }
+
+    // KGarage Door
+    const uuid = this.api.hap.uuid.generate('kGarage:' + this.config.address);
+    const existingKGarageAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+
+    if (existingKGarageAccessory) {
+      // the accessory already exists
+      this.log.info('Restoring existing accessory from cache:', existingKGarageAccessory.displayName);
+
+      // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
+      // existingAccessory.context.device = device;
+      // this.api.updatePlatformAccessories([existingAccessory]);
+
+      // create the accessory handler for the restored accessory
+      // this is imported from `platformAccessory.ts`
+      new KGarageDoorPlatformAccessory(this, existingKGarageAccessory);
+
+      // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
+      // remove platform accessories when no longer present
+      // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+      // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+    } else {
+      // the accessory does not yet exist, so we need to create it
+      this.log.info('Adding new accessory:', this.config.name);
+
+      // create a new accessory
+      const accessory = new this.api.platformAccessory(this.config.name!, uuid);
+
+      // store a copy of the device object in the `accessory.context`
+      // the `context` property can be used to store any data about the accessory you may need
+      accessory.context.device = this.config;
+
+      // create the accessory handler for the newly create accessory
+      // this is imported from `platformAccessory.ts`
+      new KGarageDoorPlatformAccessory(this, accessory);
+
+      // link the accessory to your platform
+      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     }
   }
 }

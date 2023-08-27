@@ -1,4 +1,9 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import {
+  Service,
+  PlatformAccessory,
+  CharacteristicValue,
+  Characteristic,
+} from 'homebridge';
 
 import { ExampleHomebridgePlatform } from './platform';
 
@@ -23,32 +28,45 @@ export class ExamplePlatformAccessory {
     private readonly platform: ExampleHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
   ) {
-
     // set accessory information
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
+    this.accessory
+      .getService(this.platform.Service.AccessoryInformation)!
+      .setCharacteristic(
+        this.platform.Characteristic.Manufacturer,
+        'Default-Manufacturer',
+      )
       .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+      .setCharacteristic(
+        this.platform.Characteristic.SerialNumber,
+        'Default-Serial',
+      );
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
-    this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
+    this.service =
+      this.accessory.getService(this.platform.Service.Lightbulb) ||
+      this.accessory.addService(this.platform.Service.Lightbulb);
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
+    this.service.setCharacteristic(
+      this.platform.Characteristic.Name,
+      accessory.context.device.exampleDisplayName,
+    );
 
     // each service must implement at-minimum the "required characteristics" for the given service type
     // see https://developers.homebridge.io/#/service/Lightbulb
 
     // register handlers for the On/Off Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
-      .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
+    this.service
+      .getCharacteristic(this.platform.Characteristic.On)
+      .onSet(this.setOn.bind(this)) // SET - bind to the `setOn` method below
+      .onGet(this.getOn.bind(this)); // GET - bind to the `getOn` method below
 
     // register handlers for the Brightness Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-      .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
+    this.service
+      .getCharacteristic(this.platform.Characteristic.Brightness)
+      .onSet(this.setBrightness.bind(this)); // SET - bind to the 'setBrightness` method below
 
     /**
      * Creating multiple services of the same type.
@@ -62,11 +80,21 @@ export class ExamplePlatformAccessory {
      */
 
     // Example: add two "motion sensor" services to the accessory
-    const motionSensorOneService = this.accessory.getService('Motion Sensor One Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor One Name', 'YourUniqueIdentifier-1');
+    const motionSensorOneService =
+      this.accessory.getService('Motion Sensor One Name') ||
+      this.accessory.addService(
+        this.platform.Service.MotionSensor,
+        'Motion Sensor One Name',
+        'YourUniqueIdentifier-1',
+      );
 
-    const motionSensorTwoService = this.accessory.getService('Motion Sensor Two Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor Two Name', 'YourUniqueIdentifier-2');
+    const motionSensorTwoService =
+      this.accessory.getService('Motion Sensor Two Name') ||
+      this.accessory.addService(
+        this.platform.Service.MotionSensor,
+        'Motion Sensor Two Name',
+        'YourUniqueIdentifier-2',
+      );
 
     /**
      * Updating characteristics values asynchronously.
@@ -83,11 +111,23 @@ export class ExamplePlatformAccessory {
       motionDetected = !motionDetected;
 
       // push the new value to HomeKit
-      motionSensorOneService.updateCharacteristic(this.platform.Characteristic.MotionDetected, motionDetected);
-      motionSensorTwoService.updateCharacteristic(this.platform.Characteristic.MotionDetected, !motionDetected);
+      motionSensorOneService.updateCharacteristic(
+        this.platform.Characteristic.MotionDetected,
+        motionDetected,
+      );
+      motionSensorTwoService.updateCharacteristic(
+        this.platform.Characteristic.MotionDetected,
+        !motionDetected,
+      );
 
-      this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
-      this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
+      this.platform.log.debug(
+        'Triggering motionSensorOneService:',
+        motionDetected,
+      );
+      this.platform.log.debug(
+        'Triggering motionSensorTwoService:',
+        !motionDetected,
+      );
     }, 10000);
   }
 
@@ -137,5 +177,111 @@ export class ExamplePlatformAccessory {
 
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
   }
+}
 
+// const s= Characteristic.CurrentDoorState
+
+type KGarageState = {
+  current: number;
+  target: number;
+  isObstructed: boolean;
+};
+
+export class KGarageDoorPlatformAccessory {
+  private service: Service;
+  private state: KGarageState;
+
+  constructor(
+    private readonly platform: ExampleHomebridgePlatform,
+    private readonly accessory: PlatformAccessory,
+  ) {
+    this.state = {
+      current: this.platform.Characteristic.CurrentDoorState.CLOSED,
+      target: this.platform.Characteristic.TargetDoorState.CLOSED,
+      isObstructed: false,
+    };
+
+    this.accessory
+      .getService(this.platform.Service.AccessoryInformation)!
+      .setCharacteristic(
+        this.platform.Characteristic.Manufacturer,
+        'Postek Company',
+      )
+      .setCharacteristic(this.platform.Characteristic.Model, 'GD:prototype:1')
+      .setCharacteristic(
+        this.platform.Characteristic.SerialNumber,
+        '00-00-00-000000',
+      );
+
+    this.service =
+      this.accessory.getService(this.platform.Service.GarageDoorOpener) ||
+      this.accessory.addService(this.platform.Service.GarageDoorOpener);
+
+    this.service.setCharacteristic(
+      this.platform.Characteristic.Name,
+      accessory.context.device.name,
+    );
+
+    // required characteristics: Current Door State, Target Door State, Obstruction Detected
+    this.service
+      .getCharacteristic(this.platform.Characteristic.CurrentDoorState)
+      .onGet(this.getCurrentDoorState.bind(this));
+
+    this.service
+      .getCharacteristic(this.platform.Characteristic.TargetDoorState)
+      .onSet(this.setTargetDoorState.bind(this));
+
+    this.service
+      .getCharacteristic(this.platform.Characteristic.ObstructionDetected)
+      .onGet(this.getObstructionDetected.bind(this));
+
+    this.service.setCharacteristic(
+      this.platform.Characteristic.CurrentDoorState,
+      this.state.current,
+    );
+    this.service.setCharacteristic(
+      this.platform.Characteristic.TargetDoorState,
+      this.state.target,
+    );
+  }
+
+  async getCurrentDoorState(): Promise<CharacteristicValue> {
+    return this.state.current;
+  }
+
+  async setTargetDoorState(value: CharacteristicValue) {
+    const { TargetDoorState, CurrentDoorState } = this.platform.Characteristic;
+
+    if (value === TargetDoorState.OPEN) {
+      this.state.current = CurrentDoorState.OPENING;
+      this.service.updateCharacteristic(
+        this.platform.Characteristic.CurrentDoorState,
+        this.state.current,
+      );
+      setTimeout(() => {
+        this.state.current = CurrentDoorState.OPEN;
+        this.service.updateCharacteristic(
+          this.platform.Characteristic.CurrentDoorState,
+          this.state.current,
+        );
+      }, 2500);
+    } else if (value === TargetDoorState.CLOSED) {
+      this.state.current = CurrentDoorState.CLOSING;
+      this.service.updateCharacteristic(
+        this.platform.Characteristic.CurrentDoorState,
+        this.state.current,
+      );
+      setTimeout(() => {
+        this.state.current = CurrentDoorState.CLOSED;
+        this.service.updateCharacteristic(
+          this.platform.Characteristic.CurrentDoorState,
+          this.state.current,
+        );
+      }, 2500);
+    }
+  }
+
+  async getObstructionDetected(): Promise<CharacteristicValue> {
+    return this.state.isObstructed;
+  }
 }

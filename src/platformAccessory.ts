@@ -100,7 +100,7 @@ export class KGarageDoorPlatformAccessory {
           accessory.context.device.port,
           accessory.context.device.address,
         );
-      }, 2000)
+      }, 2000);
     });
   }
 

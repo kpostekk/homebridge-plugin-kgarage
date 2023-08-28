@@ -70,10 +70,17 @@ export class KGarageDoorPlatformAccessory {
 
     this.client = new ControlTCPClient(accessory.context.device.secret);
     this.client.setTimeout(10_000);
+    this.platform.log.info(
+      `Connecting to ${accessory.context.device.address}:${accessory.context.device.port}`,
+    );
     this.client.connect(
       accessory.context.device.port,
       accessory.context.device.address,
     );
+
+    this.client.once('connect', () => {
+      this.platform.log.info('Connected to device!');
+    });
 
     this.client.on('data', (data) => {
       const state = Number(data);
@@ -86,6 +93,14 @@ export class KGarageDoorPlatformAccessory {
 
     this.client.on('error', (error) => {
       this.platform.log.error(String(error));
+
+      this.platform.log.info('Reconnecting...');
+      setTimeout(() => {
+        this.client?.connect(
+          accessory.context.device.port,
+          accessory.context.device.address,
+        );
+      }, 2000)
     });
   }
 
@@ -99,6 +114,7 @@ export class KGarageDoorPlatformAccessory {
       target: value as 0 | 1,
       timestamp: Date.now(),
     });
+    this.platform.log.debug(`Set target to ${value}`);
   }
 
   async getObstructionDetected(): Promise<CharacteristicValue> {

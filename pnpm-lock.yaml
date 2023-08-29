@@ -6,8 +6,11 @@ settings:
 
 dependencies:
   kgarage-ctl:
-    specifier: ^2.0.0
-    version: 2.0.0
+    specifier: ^2.1.1
+    version: 2.1.1
+  zod:
+    specifier: ^3.22.2
+    version: 3.22.2
 
 devDependencies:
   '@types/node':
@@ -1270,8 +1273,8 @@ packages:
       json-buffer: 3.0.1
     dev: true
 
-  /kgarage-ctl@2.0.0:
-    resolution: {integrity: sha512-Amz1o0ZzcauIC0fUvdBNsBlAdZkYPikmV+LMm/99cCR6i9JgcfRso3n3/veG79/AG+qw3HlYR7kof5JbyCPONg==}
+  /kgarage-ctl@2.1.1:
+    resolution: {integrity: sha512-TX/QnJ08wDZibMHRLPWXUMx0GJKFKyw11VBvA21lOrIk2t/6NBDqOCnEDH656VFhTs5ZLTVWGLC9JgbsLPzOVw==}
     hasBin: true
     dependencies:
       pigpio: 3.3.1

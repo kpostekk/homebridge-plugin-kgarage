@@ -1,6 +1,7 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { ControlTCPClient } from 'kgarage-ctl/dist/tcp';
 import { ExampleHomebridgePlatform } from './platform';
+import { z } from 'zod';
 
 // const s= Characteristic.CurrentDoorState
 
@@ -83,11 +84,34 @@ export class KGarageDoorPlatformAccessory {
     });
 
     this.client.on('data', (data) => {
-      const state = Number(data);
-      this.state.current = state;
+      const states: unknown = JSON.parse(data.toString());
+
+      const state = z
+        .object({
+          current: z.union([
+            z.literal(0),
+            z.literal(1),
+            z.literal(2),
+            z.literal(3),
+            z.literal(4),
+          ]),
+          target: z.union([z.literal(0), z.literal(1)]),
+        })
+        .parse(states);
+
+      this.state = {
+        ...state,
+        isObstructed: this.state.isObstructed,
+      };
+
       this.service.setCharacteristic(
         this.platform.Characteristic.CurrentDoorState,
-        state,
+        this.state.current,
+      );
+
+      this.service.setCharacteristic(
+        this.platform.Characteristic.TargetDoorState,
+        this.state.target,
       );
     });
 
@@ -105,6 +129,7 @@ export class KGarageDoorPlatformAccessory {
   }
 
   async getCurrentDoorState(): Promise<CharacteristicValue> {
+    await this.client?.waitForSync();
     return this.state.current;
   }
 
@@ -112,7 +137,6 @@ export class KGarageDoorPlatformAccessory {
     this.client?.sendControlPacket({
       action: 'SET',
       target: value as 0 | 1,
-      timestamp: Date.now(),
     });
     this.platform.log.debug(`Set target to ${value}`);
   }

@@ -70,7 +70,9 @@ export class KGarageDoorPlatformAccessory {
     );
 
     this.client = new ControlTCPClient(accessory.context.device.secret);
-    this.client.setTimeout(10_000);
+    this.client.setTimeout(20_000);
+    this.client.setKeepAlive(true, 10_000);
+
     this.platform.log.info(
       `Connecting to ${accessory.context.device.address}:${accessory.context.device.port}`,
     );
@@ -104,28 +106,12 @@ export class KGarageDoorPlatformAccessory {
         this.platform.log.info(
           `Current state changed from ${this.state.current} to ${state.current}`,
         );
-      }
-
-      if (this.state.target !== state.target) {
-        this.platform.log.info(
-          `Target state changed from ${this.state.target} to ${state.target}`,
+        this.state.current = state.current;
+        this.service.setCharacteristic(
+          this.platform.Characteristic.CurrentDoorState,
+          this.state.current,
         );
       }
-
-      this.state = {
-        ...state,
-        isObstructed: this.state.isObstructed,
-      };
-
-      this.service.setCharacteristic(
-        this.platform.Characteristic.CurrentDoorState,
-        this.state.current,
-      );
-
-      this.service.setCharacteristic(
-        this.platform.Characteristic.TargetDoorState,
-        this.state.target,
-      );
 
     });
 
@@ -143,7 +129,10 @@ export class KGarageDoorPlatformAccessory {
   }
 
   async getCurrentDoorState(): Promise<CharacteristicValue> {
-    await this.client?.waitForSync();
+    await Promise.all([
+      this.client?.waitForSync(),
+      new Promise((resolve) => setTimeout(resolve, 50)),
+    ]);
     return this.state.current;
   }
 

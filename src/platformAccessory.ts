@@ -84,6 +84,7 @@ export class KGarageDoorPlatformAccessory {
     });
 
     this.client.on('data', (data) => {
+      this.platform.log.debug(`Received state: ${data.toString()}`);
       const states: unknown = JSON.parse(data.toString());
 
       const state = z
@@ -126,7 +127,6 @@ export class KGarageDoorPlatformAccessory {
         this.state.target,
       );
 
-      this.platform.log.debug(`Received state: ${JSON.stringify(this.state)}`);
     });
 
     this.client.on('error', (error) => {

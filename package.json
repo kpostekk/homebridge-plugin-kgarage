@@ -2,7 +2,7 @@
   "private": false,
   "displayName": "KGarage",
   "name": "homebridge-plugin-kgarage",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A custom plugin for a custom garage door controller.",
   "license": "Apache-2.0",
   "repository": {

@@ -99,6 +99,18 @@ export class KGarageDoorPlatformAccessory {
         })
         .parse(states);
 
+      if (this.state.current !== state.current) {
+        this.platform.log.info(
+          `Current state changed from ${this.state.current} to ${state.current}`,
+        );
+      }
+
+      if (this.state.target !== state.target) {
+        this.platform.log.info(
+          `Target state changed from ${this.state.target} to ${state.target}`,
+        );
+      }
+
       this.state = {
         ...state,
         isObstructed: this.state.isObstructed,
@@ -113,6 +125,8 @@ export class KGarageDoorPlatformAccessory {
         this.platform.Characteristic.TargetDoorState,
         this.state.target,
       );
+
+      this.platform.log.debug(`Received state: ${JSON.stringify(this.state)}`);
     });
 
     this.client.on('error', (error) => {
